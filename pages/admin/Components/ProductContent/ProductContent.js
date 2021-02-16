@@ -64,13 +64,23 @@ function Content(props) {
   const [searchInput, setSearchInput] = useState("");
 
   const searchHandler = (searchVal) => {
-    //  const rowData =rows.map(row =>)
+    const rowData = rows
+      .map((row) => Object.values(row))
+      .filter((options) => options !== true && options !== false);
+
+    const matches = rowData.map((row) =>
+      row.map((option) =>
+        option.toLowerCase().includes(searchVal.toLowerCase())
+      )
+    );
+    console.log(matches);
   };
 
   const inputHandler = (e) => {
     setSearchInput(e.target.value);
-    searchHandler(e.target.value);
+    // searchHandler(e.target.value);
   };
+
   return (
     <React.Fragment>
       <form className={classes.root} noValidate autoComplete="off">
