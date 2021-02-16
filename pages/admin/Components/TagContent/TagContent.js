@@ -1,19 +1,21 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import Typography from "@material-ui/core/Typography";
-import Paper from "@material-ui/core/Paper";
-import Grid from "@material-ui/core/Grid";
-import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import Tooltip from "@material-ui/core/Tooltip";
-import IconButton from "@material-ui/core/IconButton";
 import { withStyles } from "@material-ui/core/styles";
-import SearchIcon from "@material-ui/icons/Search";
-import RefreshIcon from "@material-ui/icons/Refresh";
+import Button from "@material-ui/core/Button";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 const styles = (theme) => ({
+  root: {
+    "& > *": {
+      margin: theme.spacing(1),
+      width: "80%",
+    },
+  },
+  button: {
+    width: "80%",
+    padding: "11px",
+  },
   paper: {
     maxWidth: 936,
     margin: "auto",
@@ -34,12 +36,62 @@ const styles = (theme) => ({
   contentWrapper: {
     margin: "40px 16px",
   },
+  loading: {
+    backgroundColor: "#fff",
+  },
+  progress: {
+    color: "#fff",
+    marginRight: "20px",
+    height: "5px",
+    width: "5px",
+  },
 });
 
 function Content(props) {
   const { classes } = props;
+  const [isLoading, setIsLoading] = useState(false);
+  const [input, setInput] = useState("");
 
-  return <h1>Tag Content</h1>;
+  const onInputHandler = (e) => {
+    setInput(e.target.value);
+    console.log(input);
+  };
+  const onSubmitHandler = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+  };
+  return (
+    <form className={classes.root} noValidate autoComplete="off">
+      <TextField
+        id="outlined-basic"
+        label="Add a tag"
+        variant="outlined"
+        onChange={onInputHandler}
+        value={input}
+      />
+      <Button
+        variant="contained"
+        color="primary"
+        className={classes.button}
+        onClick={onSubmitHandler}
+        disableRipple={true}
+      >
+        {isLoading ? (
+          <CircularProgress
+            className={classes.progress}
+            disableShrink={false}
+            variant="indeterminate"
+            size={24}
+          />
+        ) : (
+          ""
+        )}{" "}
+        Add Tag
+      </Button>
+    </form>
+  );
 }
 
 Content.propTypes = {
