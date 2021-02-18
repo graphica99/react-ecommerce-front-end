@@ -14,7 +14,7 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-
+//!!WORK ON DELETE
 const styles = (theme) => ({
   root: {
     "& > *": {
@@ -87,6 +87,7 @@ function Content(props) {
   const [openDialog, setOpenDialog] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
   const [tempIdEdit, setTempIdEdit] = useState("");
+
   const handleClickOpen = () => {
     setOpenDialog(true);
   };
@@ -251,33 +252,6 @@ function Content(props) {
           let icon;
           return (
             <>
-              <Dialog
-                open={openDialog}
-                onClose={handleClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-                className={classes.dialog}
-              >
-                <DialogTitle id="alert-dialog-title">{"Delete"}</DialogTitle>
-                <DialogContent>
-                  <DialogContentText id="alert-dialog-description">
-                    {`Are you sure you want to delete the tag "${data.tag}"`}
-                  </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={handleClose} color="primary">
-                    No
-                  </Button>
-                  <Button
-                    onClick={handleDelete(data)}
-                    color="primary"
-                    autoFocus
-                    disableRipple={true}
-                  >
-                    Yes
-                  </Button>
-                </DialogActions>
-              </Dialog>
               <li
                 key={data._id}
                 onDoubleClick={() => doubleClick(data._id, data.tag)}
@@ -286,7 +260,7 @@ function Content(props) {
                   icon={icon}
                   label={data.tag}
                   onDelete={
-                    data.label === "React" ? undefined : handleClickOpen
+                    data.label === "React" ? undefined : handleDelete(data)
                   }
                   className={classes.chip}
                 />
