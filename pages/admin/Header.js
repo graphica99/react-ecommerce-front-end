@@ -43,7 +43,6 @@ const styles = (theme) => ({
 
 function Header(props) {
   const { classes, onDrawerToggle } = props;
-
   return (
     <React.Fragment>
       <AppBar color="primary" position="sticky" elevation={0}>
@@ -82,9 +81,11 @@ function Header(props) {
         <Toolbar>
           <Grid container alignItems="center" spacing={1}>
             <Grid item xs>
-              <Typography color="inherit" variant="h5" component="h1">
-                Products
-              </Typography>
+              <Typography
+                color="inherit"
+                variant="h5"
+                component="h1"
+              ></Typography>
             </Grid>
           </Grid>
         </Toolbar>
