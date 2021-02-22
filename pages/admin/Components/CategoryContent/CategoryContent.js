@@ -78,12 +78,17 @@ const styles = (theme) => ({
     marginTop: "30px",
     width: "100%",
   },
-  dialog: {},
+  progressTable: {
+    marginLeft: "100px",
+    height: "5px",
+    width: "5px",
+  },
 });
 
 function Content(props) {
   const { classes } = props;
   const [isLoading, setIsLoading] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(true);
   const [input, setInput] = useState("");
   const [open, setOpen] = useState({ state: false, msg: "" });
   const [error, setError] = useState("");
@@ -142,26 +147,28 @@ function Content(props) {
   const handleDelete = (catToDelete) => {
     console.log(catToDelete);
     setRows((row) => rows.filter((row) => row._id !== catToDelete));
-
-    // axios
-    //   .delete(`http://localhost:1000/api/tag/delete-tag/${chipToDelete._id}`, {
-    //     headers: {
-    //       "x-auth-token":
-    //         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNWZlNzBjMjRiNWUxYjgyOGM4YmFkYjA5In0sImlhdCI6MTYxMzU4ODEwNCwiZXhwIjoxNjEzOTQ4MTA0fQ.chKNWhsy1kMt1ccvG6dAoDucVgfp7XdphMpvyr_702Q",
-    //     },
-    //   })
-    //   .then((success) => {
-    //     setOpen({ state: true, msg: "Post deleted Successfully" });
-    //     setIsLoading(false);
-    //     setError("");
-    //     setOpenDialog(false);
-    //     console.log("deleted successfully");
-    //   })
-    //   .catch((e) => {
-    //     setError(e.response.data.msg);
-    //     console.log(e.response.data.msg);
-    //     setIsLoading(false);
-    //   });
+    axios
+      .delete(
+        `http://localhost:1000/api/category/delete-category/${catToDelete}`,
+        {
+          headers: {
+            "x-auth-token":
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNWZlNzBjMjRiNWUxYjgyOGM4YmFkYjA5In0sImlhdCI6MTYxMzU4ODEwNCwiZXhwIjoxNjEzOTQ4MTA0fQ.chKNWhsy1kMt1ccvG6dAoDucVgfp7XdphMpvyr_702Q",
+          },
+        }
+      )
+      .then((success) => {
+        setOpen({ state: true, msg: "Post deleted Successfully" });
+        setIsLoading(false);
+        setError("");
+        setOpenDialog(false);
+        console.log("deleted successfully");
+      })
+      .catch((e) => {
+        // setError(e.response.data.msg);
+        console.log(e);
+        setIsLoading(false);
+      });
   };
 
   const onSubmitHandler = () => {
