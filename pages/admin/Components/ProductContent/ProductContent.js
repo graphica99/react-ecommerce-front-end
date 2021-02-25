@@ -2,14 +2,11 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import Paper from "@material-ui/core/Paper";
 import { withStyles } from "@material-ui/core/styles";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableHead from "@material-ui/core/TableHead";
-import TableContainer from "@material-ui/core/TableContainer";
-import TableRow from "@material-ui/core/TableRow";
-import TableCell from "@material-ui/core/TableCell";
+import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
-
+import Select from "@material-ui/core/Select";
+import IconButton from "@material-ui/core/IconButton";
+import PhotoCamera from "@material-ui/icons/PhotoCamera";
 const styles = (theme) => ({
   paper: {
     maxWidth: 936,
@@ -35,89 +32,90 @@ const styles = (theme) => ({
     "& > *": {
       margin: theme.spacing(1),
       width: "50%",
-      marginBottom: "40px",
+      // marginBottom: "40px",
     },
   },
 });
 
-const createData = (name, tag, category, price, owner, image, search) => {
-  return { name, tag, category, price, owner, image, search };
-};
-
 function Content(props) {
   const { classes } = props;
 
-  const [rows, setRows] = useState([
-    createData("Bag", "Bag", "Fashion", 20.0, "Mends Albert", "img", true),
-    createData(
-      "Shoes",
-      "Shoes",
-      "Fashion",
-      20.0,
-      "Priscilla Mends",
-      "img",
-      true
-    ),
-    createData("Jollof", "Rice", "Food", 20.0, "Elvis Mends", "img", true),
-  ]);
+  const [image, setImage] = useState([]);
 
-  const [searchInput, setSearchInput] = useState("");
+  const handleCapture = (e) => {
+    console.log(e.target.files[0]);
+    // const fileReader = new FileReader();
+    // const name = target.accept.includes("image") ? "images" : "videos";
 
-  const searchHandler = (searchVal) => {
-    const rowData = rows
-      .map((row) => Object.values(row))
-      .filter((options) => options !== true && options !== false);
-
-    const matches = rowData.map((row) =>
-      row.map((option) =>
-        option.toLowerCase().includes(searchVal.toLowerCase())
-      )
-    );
-    console.log(matches);
+    // fileReader.readAsDataURL(target.files[0]);
+    // fileReader.onload = (e) => {
+    //   setImage([...image, e.target.result]);
+    //   // setImage((prevState) => ({
+    //   //   [name]: [...prevState[name], e.target.result],
+    //   // }));
+    // };
   };
-
-  const inputHandler = (e) => {
-    setSearchInput(e.target.value);
-    // searchHandler(e.target.value);
-  };
-
+  console.log(image);
   return (
     <React.Fragment>
       <form className={classes.root} noValidate autoComplete="off">
-        <TextField
-          id="standard-basic"
-          label="Search"
-          value={searchInput}
-          onChange={(e) => inputHandler(e)}
-        />
-      </form>
+        <img width="50" height="50" src={image} />
+        <Typography variant="h5">Product</Typography>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Tag</TableCell>
-              <TableCell>Category</TableCell>
-              <TableCell>Price</TableCell>
-              <TableCell>Owner</TableCell>
-              <TableCell>Image</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row, index) => (
-              <TableRow key={index}>
-                <TableCell>{row.name}</TableCell>
-                <TableCell>{row.tag}</TableCell>
-                <TableCell>{row.category}</TableCell>
-                <TableCell>{row.price}</TableCell>
-                <TableCell>{row.owner}</TableCell>
-                <TableCell>{row.image}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+        <TextField
+          id="outlined-basic"
+          label="Add a tag"
+          variant="outlined"
+          // onChange={onInputHandler}
+          // value={input}
+        />
+        <Select
+          native
+          variant="outlined"
+          // value={10}
+          // onChange={handleChange}
+          label="Age"
+          inputProps={{
+            name: "age",
+            id: "outlined-age-native-simple",
+          }}
+        >
+          {/* <option aria-label="None" /> */}
+          <option value={10}>Ten</option>
+          <option value={20}>Twenty</option>
+          <option value={30}>Thirty</option>
+        </Select>
+
+        <Select
+          native
+          variant="outlined"
+          // value={10}
+          // onChange={handleChange}
+          label="Age"
+          inputProps={{
+            name: "age",
+            id: "outlined-age-native-simple",
+          }}
+        >
+          {/* <option aria-label="None" /> */}
+          <option value={10}>Ten</option>
+          <option value={20}>Twenty</option>
+          <option value={30}>Thirty</option>
+        </Select>
+        <input
+          accept="image/*"
+          // className=/{classes.input}
+          style={{ display: "none" }}
+          id="icon-button-photo"
+          onChange={handleCapture}
+          type="file"
+        />
+        <label htmlFor="icon-button-photo">
+          <IconButton color="primary" component="span">
+            <PhotoCamera />
+          </IconButton>
+        </label>
+      </form>
     </React.Fragment>
   );
 }

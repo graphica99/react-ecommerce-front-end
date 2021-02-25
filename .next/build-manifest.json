@@ -24,10 +24,15 @@
       "static/chunks/webpack.js",
       "static/chunks/pages/_error.js"
     ],
-    "/admin/Category": [
+    "/admin/Products": [
       "static/chunks/main.js",
       "static/chunks/webpack.js",
-      "static/chunks/pages/admin/Category.js"
+      "static/chunks/pages/admin/Products.js"
+    ],
+    "/admin/Tags": [
+      "static/chunks/main.js",
+      "static/chunks/webpack.js",
+      "static/chunks/pages/admin/Tags.js"
     ]
   },
   "ampFirstPages": []
