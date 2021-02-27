@@ -7,6 +7,11 @@ import TextField from "@material-ui/core/TextField";
 import Select from "@material-ui/core/Select";
 import IconButton from "@material-ui/core/IconButton";
 import PhotoCamera from "@material-ui/icons/PhotoCamera";
+import Avatar from "@material-ui/core/Avatar";
+import AvatarGroup from "@material-ui/lab/AvatarGroup";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import Skeleton from "@material-ui/lab/Skeleton";
+import Button from "@material-ui/core/Button";
 const styles = (theme) => ({
   paper: {
     maxWidth: 936,
@@ -30,92 +35,172 @@ const styles = (theme) => ({
   },
   root: {
     "& > *": {
-      margin: theme.spacing(1),
-      width: "50%",
-      // marginBottom: "40px",
+      margin: theme.spacing(0),
+      width: "100%",
+      marginBottom: "15px",
     },
+  },
+  large: {
+    width: theme.spacing(20),
+    height: theme.spacing(20),
+    borderRadius: "30px",
+    margin: "10px",
+  },
+  button: {
+    width: "100%",
+    padding: "11px",
   },
 });
 
 function Content(props) {
   const { classes } = props;
-
-  const [image, setImage] = useState([]);
+  const [image, setImage] = useState("");
+  const [images, setImages] = useState([]);
+  const [spinner, setSpinner] = useState(false);
+  const [productInput, setProductInput] = useState("");
+  const [priceInput, setPriceInput] = useState("");
+  const [quantityInput, setQuantityInput] = useState("");
+  const [categoryInput, setCategoryInput] = useState("");
+  const [tagInput, setTagInput] = useState("");
 
   const handleCapture = (e) => {
-    console.log(e.target.files[0]);
-    // const fileReader = new FileReader();
-    // const name = target.accept.includes("image") ? "images" : "videos";
-
-    // fileReader.readAsDataURL(target.files[0]);
-    // fileReader.onload = (e) => {
-    //   setImage([...image, e.target.result]);
-    //   // setImage((prevState) => ({
-    //   //   [name]: [...prevState[name], e.target.result],
-    //   // }));
-    // };
+    setSpinner(true);
+    const fileReader = new FileReader();
+    if (e.target.files.length === 1) {
+      fileReader.onload = (e) => {
+        setImage(e.target.result);
+        setSpinner(false);
+      };
+      fileReader.readAsDataURL(e.target.files[0]);
+    } else {
+      for (var i = 0; i < e.target.files.length; i++) {
+        const fileReaders = new FileReader();
+        fileReaders.onload = (e) => {
+          setImages((oldArr) => [...oldArr, e.target.result]);
+          setSpinner(false);
+        };
+        fileReaders.readAsDataURL(e.target.files[i]);
+      }
+    }
   };
-  console.log(image);
+  const handleInputs = (e, type) => {
+    switch (type) {
+      case "productName":
+        setProductInput(e.target.value);
+        console.log("seen");
+      default:
+        break;
+    }
+  };
+  console.log(productInput);
   return (
     <React.Fragment>
       <form className={classes.root} noValidate autoComplete="off">
-        <img width="50" height="50" src={image} />
-        <Typography variant="h5">Product</Typography>
-
+        <Typography variant="h5">Add Product</Typography>
         <TextField
           id="outlined-basic"
-          label="Add a tag"
+          label="Add product name"
+          variant="outlined"
+          value={productInput}
+          onChange={(e) => handleInputs(e, "productName")}
+        />
+        <TextField
+          id="outlined-basic"
+          label="Add a price"
           variant="outlined"
           // onChange={onInputHandler}
           // value={input}
         />
-        <Select
-          native
-          variant="outlined"
-          // value={10}
-          // onChange={handleChange}
-          label="Age"
-          inputProps={{
-            name: "age",
-            id: "outlined-age-native-simple",
-          }}
-        >
-          {/* <option aria-label="None" /> */}
-          <option value={10}>Ten</option>
-          <option value={20}>Twenty</option>
-          <option value={30}>Thirty</option>
-        </Select>
 
-        <Select
-          native
+        <TextField
+          id="outlined-basic"
+          label="Add the quantity of product"
           variant="outlined"
-          // value={10}
+          // onChange={onInputHandler}
+          // value={input}
+        />
+        <TextField
+          id="outlined-select-currency-native"
+          select
+          label="Add category"
+          // value={currency}
           // onChange={handleChange}
-          label="Age"
-          inputProps={{
-            name: "age",
-            id: "outlined-age-native-simple",
+          SelectProps={{
+            native: true,
           }}
+          variant="outlined"
         >
-          {/* <option aria-label="None" /> */}
           <option value={10}>Ten</option>
           <option value={20}>Twenty</option>
           <option value={30}>Thirty</option>
-        </Select>
+        </TextField>
+
+        <TextField
+          id="outlined-select-currency-native"
+          select
+          label="Add tag"
+          // value={currency}
+          // onChange={handleChange}
+          SelectProps={{
+            native: true,
+          }}
+          variant="outlined"
+        >
+          <option value={10}>Ten</option>
+          <option value={20}>Twenty</option>
+          <option value={30}>Thirty</option>
+        </TextField>
         <input
           accept="image/*"
-          // className=/{classes.input}
           style={{ display: "none" }}
           id="icon-button-photo"
           onChange={handleCapture}
           type="file"
+          multiple
         />
+        <br />
         <label htmlFor="icon-button-photo">
+          <Typography variant="body2">
+            *Upload a picture(s) of the product. Max: 3 picture*
+          </Typography>
           <IconButton color="primary" component="span">
             <PhotoCamera />
           </IconButton>
         </label>
+
+        <br />
+        {spinner ? (
+          <CircularProgress />
+        ) : (
+          <AvatarGroup max={3}>
+            {image ? (
+              <Avatar alt={image} src={image} className={classes.large} />
+            ) : (
+              ""
+            )}
+            {images
+              ? images.map((previewImages, i) => (
+                  // <img width="50" height="200" src={images[i]} />
+                  <Avatar
+                    alt={images[i]}
+                    src={images[i]}
+                    className={classes.large}
+                  />
+                ))
+              : ""}
+          </AvatarGroup>
+        )}
       </form>
+      <Button
+        variant="contained"
+        color="primary"
+        className={classes.button}
+        // onClick={isEditable ? onSubmitHandlerEdit : onSubmitHandler}
+        disableRipple={true}
+        disabled={true}
+      >
+        Upload Product
+      </Button>
     </React.Fragment>
   );
 }
