@@ -1,17 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import Paper from "@material-ui/core/Paper";
 import { withStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
-import Select from "@material-ui/core/Select";
+import CloseIcon from "@material-ui/icons/Close";
 import IconButton from "@material-ui/core/IconButton";
 import PhotoCamera from "@material-ui/icons/PhotoCamera";
 import Avatar from "@material-ui/core/Avatar";
 import AvatarGroup from "@material-ui/lab/AvatarGroup";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import Skeleton from "@material-ui/lab/Skeleton";
+import Card from "@material-ui/core/Card";
 import Button from "@material-ui/core/Button";
+import axios from "axios";
 const styles = (theme) => ({
   paper: {
     maxWidth: 936,
@@ -51,7 +51,6 @@ const styles = (theme) => ({
     padding: "11px",
   },
 });
-
 function Content(props) {
   const { classes } = props;
   const [image, setImage] = useState("");
@@ -62,6 +61,42 @@ function Content(props) {
   const [quantityInput, setQuantityInput] = useState("");
   const [categoryInput, setCategoryInput] = useState("");
   const [tagInput, setTagInput] = useState("");
+  const [tag, setTag] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [imageLimit, setImageLimit] = useState(false);
+  const [error, setError] = useState({ msg: "", inputType: "" });
+  useEffect(() => {
+    axios
+      .get("http://localhost:1000/api/tag/all-tags", {
+        headers: {
+          "x-auth-token":
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNWZlNzBjMjRiNWUxYjgyOGM4YmFkYjA5In0sImlhdCI6MTYxNDI4NjE3MX0.Lj0Mmj5g2yEAYqYVOQtVoMszlWs-1v7EO_BKNT-ZgkI",
+        },
+      })
+      .then((success) => {
+        setTag(success.data);
+      })
+      .catch((e) => {
+        console.log(e.response.data.msg);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:1000/api/category/all-category", {
+        headers: {
+          "x-auth-token":
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNWZlNzBjMjRiNWUxYjgyOGM4YmFkYjA5In0sImlhdCI6MTYxMzUwMzY4OSwiZXhwIjoxNjEzODYzNjg5fQ.s6MBDtyOTXIlP1FefTt2bC0qyjW6etsdcoTyztpNBJg",
+        },
+      })
+      .then((success) => {
+        setCategories(success.data);
+        // console.log(success);
+      })
+      .catch((e) => {
+        console.log(e.response.data.msg);
+      });
+  }, []);
 
   const handleCapture = (e) => {
     setSpinner(true);
@@ -70,29 +105,80 @@ function Content(props) {
       fileReader.onload = (e) => {
         setImage(e.target.result);
         setSpinner(false);
+        setImageLimit(true);
       };
       fileReader.readAsDataURL(e.target.files[0]);
     } else {
-      for (var i = 0; i < e.target.files.length; i++) {
-        const fileReaders = new FileReader();
-        fileReaders.onload = (e) => {
-          setImages((oldArr) => [...oldArr, e.target.result]);
-          setSpinner(false);
-        };
-        fileReaders.readAsDataURL(e.target.files[i]);
+      if (e.target.files.length > 3) {
+        setImageLimit(false);
+        setSpinner(false);
+      } else {
+        for (var i = 0; i < e.target.files.length; i++) {
+          const fileReaders = new FileReader();
+          fileReaders.onload = (e) => {
+            setImages((oldArr) => [...oldArr, e.target.result]);
+            setSpinner(false);
+            setImageLimit(true);
+          };
+          fileReaders.readAsDataURL(e.target.files[i]);
+        }
       }
     }
   };
   const handleInputs = (e, type) => {
-    switch (type) {
-      case "productName":
-        setProductInput(e.target.value);
-        console.log("seen");
-      default:
-        break;
+    if (type === "productName") {
+      var letters = /^[A-Za-z]+$/;
+      if (!e.target.value.match(letters)) {
+        setError({
+          msg: "Product price must be only alphabets",
+          inputType: "productName",
+        });
+      } else if (e.target.value.match(letters)) {
+        setError({});
+      }
+      setProductInput(e.target.value);
+    } else if (type === "priceValue") {
+      var numbers = /^[0-9]+$/;
+      if (!e.target.value.match(numbers)) {
+        setError({
+          msg: "Product price must be only numbers",
+          inputType: "priceValue",
+        });
+      } else if (e.target.value.match(numbers)) {
+        setError({});
+      }
+      setPriceInput(e.target.value);
+    } else if (type === "quantityValue") {
+      var numbers = /^[0-9]+$/;
+      if (!e.target.value.match(numbers)) {
+        setError({
+          msg: "Product quantity must be only numbers",
+          inputType: "quantityValue",
+        });
+      } else if (e.target.value.match(numbers)) {
+        setError({});
+      }
+      setQuantityInput(e.target.value);
+    } else if (type === "tagsValue") {
+      setTagInput(e.target.value);
+    } else if (type === "catValue") {
+      setCategoryInput(e.target.value);
     }
   };
-  console.log(productInput);
+  const validateInputs = () => {
+    if (
+      productInput &&
+      priceInput &&
+      quantityInput &&
+      categoryInput &&
+      tagInput &&
+      imageLimit
+    ) {
+      return true;
+    }
+    return false;
+  };
+
   return (
     <React.Fragment>
       <form className={classes.root} noValidate autoComplete="off">
@@ -103,52 +189,68 @@ function Content(props) {
           variant="outlined"
           value={productInput}
           onChange={(e) => handleInputs(e, "productName")}
+          error={error.msg && error.inputType === "productName" ? true : false}
+          helperText={
+            error.msg && error.inputType === "productName" ? error.msg : ""
+          }
         />
         <TextField
           id="outlined-basic"
           label="Add a price"
           variant="outlined"
-          // onChange={onInputHandler}
-          // value={input}
+          type="number"
+          value={priceInput}
+          onChange={(e) => handleInputs(e, "priceValue")}
+          error={error.msg && error.inputType === "priceValue" ? true : false}
+          helperText={
+            error.msg && error.inputType === "priceValue" ? error.msg : ""
+          }
         />
 
         <TextField
           id="outlined-basic"
           label="Add the quantity of product"
           variant="outlined"
-          // onChange={onInputHandler}
-          // value={input}
+          type="number"
+          value={quantityInput}
+          onChange={(e) => handleInputs(e, "quantityValue")}
+          error={
+            error.msg && error.inputType === "quantityValue" ? true : false
+          }
+          helperText={
+            error.msg && error.inputType === "quantityValue" ? error.msg : ""
+          }
         />
         <TextField
           id="outlined-select-currency-native"
           select
-          label="Add category"
-          // value={currency}
-          // onChange={handleChange}
+          helperText="Add a tag"
           SelectProps={{
             native: true,
           }}
           variant="outlined"
+          onFocus={(e) => handleInputs(e, "tagsValue")}
+          onChange={(e) => handleInputs(e, "tagsValue")}
         >
-          <option value={10}>Ten</option>
-          <option value={20}>Twenty</option>
-          <option value={30}>Thirty</option>
+          {tag.map((tags, i) => (
+            <option value={tags.tag}>{tags.tag}</option>
+          ))}
         </TextField>
-
         <TextField
           id="outlined-select-currency-native"
           select
-          label="Add tag"
-          // value={currency}
-          // onChange={handleChange}
+          // label="Add tag"
+          helperText="Add a category"
           SelectProps={{
             native: true,
           }}
           variant="outlined"
+          onFocus={(e) => handleInputs(e, "catValue")}
+          onChange={(e) => handleInputs(e, "catValue")}
         >
-          <option value={10}>Ten</option>
-          <option value={20}>Twenty</option>
-          <option value={30}>Thirty</option>
+          {categories.map((category, i) => (
+            <option value={category.category}>{category.category}</option>
+          ))}
         </TextField>
         <input
           accept="image/*"
@@ -174,18 +276,77 @@ function Content(props) {
         ) : (
           <AvatarGroup max={3}>
             {image ? (
-              <Avatar alt={image} src={image} className={classes.large} />
+              <>
+                <Avatar alt={image} src={image} className={classes.large} />
+                <Card
+                  onClick={() => {
+                    setImage("");
+                    setImageLimit(false);
+                  }}
+                  style={{
+                    backgroundColor: "#616161",
+                    width: "30px",
+                    height: "30px",
+                    borderRadius: "100%",
+                    color: "white",
+                    textAlign: "center",
+                    marginLeft: "-40px",
+                    zIndex: "3",
+                    paddingTop: "4.8px",
+                    cursor: "pointer",
+                  }}
+                >
+                  <CloseIcon />
+                </Card>
+              </>
             ) : (
               ""
             )}
             {images
               ? images.map((previewImages, i) => (
                   // <img width="50" height="200" src={images[i]} />
-                  <Avatar
-                    alt={images[i]}
-                    src={images[i]}
-                    className={classes.large}
-                  />
+                  <>
+                    <Avatar
+                      alt={images[i]}
+                      src={images[i]}
+                      className={classes.large}
+                    />
+                    <Card
+                      onClick={() => {
+                        const delResult = images.filter(
+                          (img) => img != images[i]
+                        );
+                        setImages(delResult);
+                        if (images.length === 1) {
+                          setImageLimit(false);
+                        }
+                      }}
+                      style={{
+                        backgroundColor: "#616161",
+                        width: "34px",
+                        height: "34px",
+                        borderRadius: "100%",
+                        color: "white",
+                        textAlign: "center",
+                        marginLeft: "-40px",
+                        zIndex: "3",
+                        paddingTop: "4.8px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <CloseIcon />
+                    </Card>
+                    {/* <Button
+                      onClick={() => {
+                        const delResult = images.filter(
+                          (img) => img != images[i]
+                        );
+                        setImages(delResult);
+                      }}
+                    >
+                      del
+                    </Button> */}
+                  </>
                 ))
               : ""}
           </AvatarGroup>
@@ -197,7 +358,7 @@ function Content(props) {
         className={classes.button}
         // onClick={isEditable ? onSubmitHandlerEdit : onSubmitHandler}
         disableRipple={true}
-        disabled={true}
+        disabled={!validateInputs()}
       >
         Upload Product
       </Button>

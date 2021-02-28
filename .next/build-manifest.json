@@ -28,11 +28,6 @@
       "static/chunks/main.js",
       "static/chunks/webpack.js",
       "static/chunks/pages/admin/Products.js"
-    ],
-    "/admin/Tags": [
-      "static/chunks/main.js",
-      "static/chunks/webpack.js",
-      "static/chunks/pages/admin/Tags.js"
     ]
   },
   "ampFirstPages": []
