@@ -12,6 +12,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Card from "@material-ui/core/Card";
 import Button from "@material-ui/core/Button";
 import axios from "axios";
+import FormData from "form-data";
 const styles = (theme) => ({
   paper: {
     maxWidth: 936,
@@ -55,6 +56,8 @@ function Content(props) {
   const { classes } = props;
   const [image, setImage] = useState("");
   const [images, setImages] = useState([]);
+  const [uImage, setUImage] = useState("");
+  const [uImages, setUImages] = useState([]);
   const [spinner, setSpinner] = useState(false);
   const [productInput, setProductInput] = useState("");
   const [priceInput, setPriceInput] = useState("");
@@ -101,7 +104,10 @@ function Content(props) {
   const handleCapture = (e) => {
     setSpinner(true);
     const fileReader = new FileReader();
+
+    //Displaying image in the UI if it is one
     if (e.target.files.length === 1) {
+      setUImage(e.target.files[0]);
       fileReader.onload = (e) => {
         setImage(e.target.result);
         setSpinner(false);
@@ -109,6 +115,7 @@ function Content(props) {
       };
       fileReader.readAsDataURL(e.target.files[0]);
     } else {
+      //Display image in the UI if it less than 3
       if (e.target.files.length > 3) {
         setImageLimit(false);
         setSpinner(false);
@@ -122,6 +129,12 @@ function Content(props) {
           };
           fileReaders.readAsDataURL(e.target.files[i]);
         }
+        var arr = [];
+        for (var j = 0; j < e.target.files.length; j++) {
+          arr.push(e.target.files[j]);
+          // setUImages((oldArr) => [...oldArr, e.target.files[j]]);
+        }
+        setUImages(arr);
       }
     }
   };
@@ -177,6 +190,37 @@ function Content(props) {
       return true;
     }
     return false;
+  };
+  const onSubmitHandler = () => {
+    let data = new FormData();
+    data.append("name", "productInput");
+    data.append("category", "categoryInput");
+    data.append("tag", "tagInput");
+    data.append("image", uImage);
+    for (var x = 0; x < uImages.length; x++) {
+      data.append("image", uImages[x]);
+    }
+    // // formData.append('postedBy', postData.content);
+    // // formData.append('rating', postData.content);
+    // // formData.append('price', postData.content);
+    // // formData.append('quantity', postData.content);
+    // console.log(JSON.stringify(data));
+
+    axios
+      .post("http://localhost:1000/api/product/add-product", data, {
+        headers: {
+          "x-auth-token":
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNWZlNzBjMjRiNWUxYjgyOGM4YmFkYjA5In0sImlhdCI6MTYxNDI4NjE3MX0.Lj0Mmj5g2yEAYqYVOQtVoMszlWs-1v7EO_BKNT-ZgkI",
+          accept: "application/json",
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((success) => {
+        console.log(success);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
   };
 
   return (
@@ -356,9 +400,9 @@ function Content(props) {
         variant="contained"
         color="primary"
         className={classes.button}
-        // onClick={isEditable ? onSubmitHandlerEdit : onSubmitHandler}
+        onClick={onSubmitHandler}
         disableRipple={true}
-        disabled={!validateInputs()}
+        // disabled={!validateInputs()}
       >
         Upload Product
       </Button>
