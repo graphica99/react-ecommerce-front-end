@@ -13,6 +13,7 @@ import Card from "@material-ui/core/Card";
 import Button from "@material-ui/core/Button";
 import axios from "axios";
 import FormData from "form-data";
+import Box from "@material-ui/core/Box";
 const styles = (theme) => ({
   paper: {
     maxWidth: 936,
@@ -68,6 +69,9 @@ function Content(props) {
   const [categories, setCategories] = useState([]);
   const [imageLimit, setImageLimit] = useState(false);
   const [error, setError] = useState({ msg: "", inputType: "" });
+  const [progress, setProgress] = React.useState(10);
+  const [isLoading, setIsLoading] = useState(false);
+  //fetching all tags for the tag select option
   useEffect(() => {
     axios
       .get("http://localhost:1000/api/tag/all-tags", {
@@ -84,6 +88,7 @@ function Content(props) {
       });
   }, []);
 
+  //fetching all categories for the category select option
   useEffect(() => {
     axios
       .get("http://localhost:1000/api/category/all-category", {
@@ -132,21 +137,21 @@ function Content(props) {
         var arr = [];
         for (var j = 0; j < e.target.files.length; j++) {
           arr.push(e.target.files[j]);
-          // setUImages((oldArr) => [...oldArr, e.target.files[j]]);
         }
         setUImages(arr);
       }
     }
   };
+
   const handleInputs = (e, type) => {
     if (type === "productName") {
-      var letters = /^[A-Za-z]+$/;
-      if (!e.target.value.match(letters)) {
+      var letters = /^[0-9]+$/;
+      if (e.target.value.match(letters)) {
         setError({
           msg: "Product price must be only alphabets",
           inputType: "productName",
         });
-      } else if (e.target.value.match(letters)) {
+      } else if (!e.target.value.match(letters)) {
         setError({});
       }
       setProductInput(e.target.value);
@@ -191,20 +196,43 @@ function Content(props) {
     }
     return false;
   };
+
+  function CircularProgressWithLabel(props) {
+    return (
+      <Box position="relative" display="inline-flex">
+        <CircularProgress variant="determinate" {...props} />
+        <Box
+          top={0}
+          left={0}
+          bottom={0}
+          right={0}
+          position="absolute"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Typography
+            variant="caption"
+            component="div"
+            color="textSecondary"
+          >{`${Math.round(props.value)}%`}</Typography>
+        </Box>
+      </Box>
+    );
+  }
+
   const onSubmitHandler = () => {
+    setIsLoading(true);
     let data = new FormData();
-    data.append("name", "productInput");
-    data.append("category", "categoryInput");
-    data.append("tag", "tagInput");
+    data.append("name", productInput);
+    data.append("category", categoryInput);
+    data.append("tag", tagInput);
+    data.append("price", priceInput);
+    data.append("quantity", quantityInput);
     data.append("image", uImage);
     for (var x = 0; x < uImages.length; x++) {
       data.append("image", uImages[x]);
     }
-    // // formData.append('postedBy', postData.content);
-    // // formData.append('rating', postData.content);
-    // // formData.append('price', postData.content);
-    // // formData.append('quantity', postData.content);
-    // console.log(JSON.stringify(data));
 
     axios
       .post("http://localhost:1000/api/product/add-product", data, {
@@ -214,12 +242,30 @@ function Content(props) {
           accept: "application/json",
           "Content-Type": "multipart/form-data",
         },
+
+        onUploadProgress: (data) => {
+          setProgress((prevProgress) =>
+            prevProgress >= 100
+              ? 0
+              : prevProgress + Math.round((100 * data.loaded) / data.total)
+          );
+        },
       })
       .then((success) => {
         console.log(success);
+        setIsLoading(false);
+        setProductInput("");
+        setPriceInput("");
+        setQuantityInput("");
+        setCategoryInput("");
+        setTagInput("");
+        setUImages("");
+        setUImage("");
+        setImage("");
+        setImages("");
       })
       .catch((e) => {
-        console.log(e);
+        // console.log(e);
       });
   };
 
@@ -380,16 +426,6 @@ function Content(props) {
                     >
                       <CloseIcon />
                     </Card>
-                    {/* <Button
-                      onClick={() => {
-                        const delResult = images.filter(
-                          (img) => img != images[i]
-                        );
-                        setImages(delResult);
-                      }}
-                    >
-                      del
-                    </Button> */}
                   </>
                 ))
               : ""}
@@ -402,9 +438,13 @@ function Content(props) {
         className={classes.button}
         onClick={onSubmitHandler}
         disableRipple={true}
-        // disabled={!validateInputs()}
+        disabled={!validateInputs()}
       >
-        Upload Product
+        {isLoading ? (
+          <CircularProgressWithLabel value={progress} />
+        ) : (
+          "Upload Product"
+        )}
       </Button>
     </React.Fragment>
   );
