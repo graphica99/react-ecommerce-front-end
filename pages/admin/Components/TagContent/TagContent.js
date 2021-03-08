@@ -10,7 +10,7 @@ import Alert from "@material-ui/lab/Alert";
 import Chip from "@material-ui/core/Chip";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
-//!!WORK ON DELETE
+
 const styles = (theme) => ({
   root: {
     "& > *": {
@@ -128,6 +128,28 @@ function Content(props) {
 
   const onInputHandler = (e) => {
     setInput(e.target.value);
+    axios
+      .post(
+        "http://localhost:1000/api/tag/isTagExist",
+        { tag: `${e.target.value}` },
+        {
+          headers: {
+            "x-auth-token":
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNWZlNzBjMjRiNWUxYjgyOGM4YmFkYjA5In0sImlhdCI6MTYxNDI4NjE3MX0.Lj0Mmj5g2yEAYqYVOQtVoMszlWs-1v7EO_BKNT-ZgkI",
+            accept: "application/json",
+            // "Content-Type": "multipart/form-data",
+          },
+        }
+      )
+      .then((success) => {
+        // console.log(success.data);
+        success.data ? setError("Tag name Already exist") : setError("");
+      })
+      .catch((e) => {
+        // setError(e.response.data.msg);
+        // console.log(e.response.data.msg);
+        console.log(e);
+      });
   };
 
   const handleDelete = (chipToDelete) => () => {
@@ -166,11 +188,13 @@ function Content(props) {
           headers: {
             "x-auth-token":
               "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNWZlNzBjMjRiNWUxYjgyOGM4YmFkYjA5In0sImlhdCI6MTYxNDI4NjE3MX0.Lj0Mmj5g2yEAYqYVOQtVoMszlWs-1v7EO_BKNT-ZgkI",
+            accept: "application/json",
+            // "Content-Type": "multipart/form-data",
           },
         }
       )
       .then((success) => {
-        setOpen({ state: true, msg: "Post added successfully" });
+        setOpen({ state: true, msg: "Tag added successfully" });
         setIsLoading(false);
         setError("");
         setInput("");
@@ -178,9 +202,13 @@ function Content(props) {
       })
       .catch((e) => {
         setError(e.response.data.msg);
-        console.log(e.response.data.msg);
+        console.log(e);
         setIsLoading(false);
       });
+  };
+
+  const deleteTag = () => {
+    //delete tag
   };
 
   useEffect(() => {
@@ -215,7 +243,6 @@ function Content(props) {
         onClose={() => setOpen(false)}
         message={open.msg}
       />
-
       <form className={classes.root} noValidate autoComplete="off">
         <Typography variant="h5">Tags</Typography>
         <TextField

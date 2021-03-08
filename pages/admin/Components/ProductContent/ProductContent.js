@@ -14,6 +14,8 @@ import Button from "@material-ui/core/Button";
 import axios from "axios";
 import FormData from "form-data";
 import Box from "@material-ui/core/Box";
+import Snackbar from "@material-ui/core/Snackbar";
+
 const styles = (theme) => ({
   paper: {
     maxWidth: 936,
@@ -71,6 +73,7 @@ function Content(props) {
   const [error, setError] = useState({ msg: "", inputType: "" });
   const [progress, setProgress] = React.useState(10);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSnackBar, setIsSnackBar] = useState({ state: false, msg: "" });
   //fetching all tags for the tag select option
   useEffect(() => {
     axios
@@ -233,7 +236,6 @@ function Content(props) {
     for (var x = 0; x < uImages.length; x++) {
       data.append("image", uImages[x]);
     }
-
     axios
       .post("http://localhost:1000/api/product/add-product", data, {
         headers: {
@@ -245,14 +247,14 @@ function Content(props) {
 
         onUploadProgress: (data) => {
           setProgress((prevProgress) =>
-            prevProgress >= 100
+            prevProgress >= 90
               ? 0
               : prevProgress + Math.round((100 * data.loaded) / data.total)
           );
         },
       })
       .then((success) => {
-        console.log(success);
+        setIsSnackBar({ state: true, msg: "Product added successful" });
         setIsLoading(false);
         setProductInput("");
         setPriceInput("");
@@ -271,6 +273,12 @@ function Content(props) {
 
   return (
     <React.Fragment>
+      <Snackbar
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        open={isSnackBar.state}
+        onClose={() => setIsSnackBar(false)}
+        message={isSnackBar.msg}
+      />
       <form className={classes.root} noValidate autoComplete="off">
         <Typography variant="h5">Add Product</Typography>
         <TextField

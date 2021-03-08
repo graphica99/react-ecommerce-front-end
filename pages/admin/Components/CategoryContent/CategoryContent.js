@@ -138,6 +138,27 @@ function Content(props) {
 
   const onInputHandler = (e) => {
     setInput(e.target.value);
+    axios
+      .post(
+        "http://localhost:1000/api/category/isCategoryExist",
+        { category: `${e.target.value}` },
+        {
+          headers: {
+            "x-auth-token":
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNWZlNzBjMjRiNWUxYjgyOGM4YmFkYjA5In0sImlhdCI6MTYxNDI4NjE3MX0.Lj0Mmj5g2yEAYqYVOQtVoMszlWs-1v7EO_BKNT-ZgkI",
+            accept: "application/json",
+          },
+        }
+      )
+      .then((success) => {
+        // console.log(success);
+        success.data ? setError("Category Already exist") : setError("");
+      })
+      .catch((e) => {
+        // setError(e.response.data.msg);
+        // console.log(e.response.data.msg);
+        console.log(e);
+      });
   };
 
   const onSubCategoryInputHandler = (e) => {
